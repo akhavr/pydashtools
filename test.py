@@ -3,8 +3,8 @@ import os
 import random
 import unittest
 
-import bitcoin.ripemd as ripemd
-from bitcoin import *
+import dash.ripemd as ripemd
+from dash import *
 
 
 class TestECCArithmetic(unittest.TestCase):

@@ -1,8 +1,8 @@
-from bitcoin.main import *
-from bitcoin.transaction import *
-from bitcoin.bci import *
-from bitcoin.deterministic import *
-from bitcoin.blocks import *
+from dash.main import *
+from dash.transaction import *
+from dash.bci import *
+from dash.deterministic import *
+from dash.blocks import *
 
 
 # Takes privkey, address, value (satoshis), fee (satoshis)

@@ -4,14 +4,14 @@ try:
 except ImportError:
     from distutils.core import setup
 
-setup(name='bitcoin',
-      version='1.1.26',
-      description='Python Bitcoin Tools',
+setup(name='dash',
+      version='0.0.1',
+      description='Python Dash Tools',
       author='Vitalik Buterin',
       author_email='vbuterin@gmail.com',
       url='http://github.com/vbuterin/pybitcointools',
-      packages=['bitcoin'],
-      scripts=['pybtctool'],
+      packages=['dash'],
+      scripts=['pydashtool'],
       include_package_data=True,
       data_files=[("", ["LICENSE"])],
       )

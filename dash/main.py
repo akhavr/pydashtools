@@ -10,7 +10,7 @@ import base64
 import time
 import random
 import hmac
-from bitcoin.ripemd import *
+from dash.ripemd import *
 
 # Elliptic curve parameters (secp256k1)
 

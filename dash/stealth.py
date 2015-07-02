@@ -1,5 +1,5 @@
-import bitcoin.main as main
-import bitcoin.transaction as tx
+import dash.main as main
+import dash.transaction as tx
 
 # Shared secrets and uncovering pay keys
 
