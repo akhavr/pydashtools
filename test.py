@@ -76,81 +76,81 @@ class TestBases(unittest.TestCase):
             self.assertEqual(decode(changebase(encode(x, frm), frm, to), to), x)
 
 
-class TestElectrumWalletInternalConsistency(unittest.TestCase):
+# class TestElectrumWalletInternalConsistency(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        print('Starting Electrum wallet internal consistency tests')
+#     @classmethod
+#     def setUpClass(cls):
+#         print('Starting Electrum wallet internal consistency tests')
 
-    def test_all(self):
-        for i in range(3):
-            seed = sha256(str(random.randrange(2**40)))[:32]
-            mpk = electrum_mpk(seed)
-            for i in range(5):
-                pk = electrum_privkey(seed, i)
-                pub = electrum_pubkey((mpk, seed)[i % 2], i)
-                pub2 = privtopub(pk)
-                self.assertEqual(
-                    pub,
-                    pub2,
-                    'Does not match! Details:\nseed: %s\nmpk: %s\npriv: %s\npub: %s\npub2: %s' % (
-                        seed, mpk, pk, pub, pub2
-                    )
-                )
+#     def test_all(self):
+#         for i in range(3):
+#             seed = sha256(str(random.randrange(2**40)))[:32]
+#             mpk = electrum_mpk(seed)
+#             for i in range(5):
+#                 pk = electrum_privkey(seed, i)
+#                 pub = electrum_pubkey((mpk, seed)[i % 2], i)
+#                 pub2 = privtopub(pk)
+#                 self.assertEqual(
+#                     pub,
+#                     pub2,
+#                     'Does not match! Details:\nseed: %s\nmpk: %s\npriv: %s\npub: %s\npub2: %s' % (
+#                         seed, mpk, pk, pub, pub2
+#                     )
+#                 )
 
 
-class TestElectrumSignVerify(unittest.TestCase):
-    """Requires Electrum."""
+# class TestElectrumSignVerify(unittest.TestCase):
+#     """Requires Electrum."""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.wallet = "/tmp/tempwallet_" + str(random.randrange(2**40))
-        print("Starting wallet tests with: " + cls.wallet)
-        os.popen('echo "\n\n\n\n\n\n" | electrum -w %s create' % cls.wallet).read()
-        cls.seed = str(json.loads(os.popen("electrum -w %s getseed" % cls.wallet).read())['seed'])
-        cls.addies = json.loads(os.popen("electrum -w %s listaddresses" % cls.wallet).read())
+#     @classmethod
+#     def setUpClass(cls):
+#         cls.wallet = "/tmp/tempwallet_" + str(random.randrange(2**40))
+#         print("Starting wallet tests with: " + cls.wallet)
+#         os.popen('echo "\n\n\n\n\n\n" | electrum -w %s create' % cls.wallet).read()
+#         cls.seed = str(json.loads(os.popen("electrum -w %s getseed" % cls.wallet).read())['seed'])
+#         cls.addies = json.loads(os.popen("electrum -w %s listaddresses" % cls.wallet).read())
 
-    def test_address(self):
-        for i in range(5):
-            self.assertEqual(
-                self.addies[i],
-                electrum_address(self.seed, i, 0),
-                "Address does not match! Details:\nseed %s, i: %d" % (self.seed, i)
-            )
+#     def test_address(self):
+#         for i in range(5):
+#             self.assertEqual(
+#                 self.addies[i],
+#                 electrum_address(self.seed, i, 0),
+#                 "Address does not match! Details:\nseed %s, i: %d" % (self.seed, i)
+#             )
 
-    def test_sign_verify(self):
-        print("Electrum-style signing and verification tests, against actual Electrum")
-        alphabet = "1234567890qwertyuiopasdfghjklzxcvbnm"
-        for i in range(8):
-            msg = ''.join([random.choice(alphabet) for i in range(random.randrange(20, 200))])
-            addy = random.choice(self.addies)
-            wif = os.popen('electrum -w %s dumpprivkey %s' % (self.wallet, addy)).readlines()[-2].replace('"', '').strip()
-            priv = b58check_to_hex(wif)
-            pub = privtopub(priv)
+#     def test_sign_verify(self):
+#         print("Electrum-style signing and verification tests, against actual Electrum")
+#         alphabet = "1234567890qwertyuiopasdfghjklzxcvbnm"
+#         for i in range(8):
+#             msg = ''.join([random.choice(alphabet) for i in range(random.randrange(20, 200))])
+#             addy = random.choice(self.addies)
+#             wif = os.popen('electrum -w %s dumpprivkey %s' % (self.wallet, addy)).readlines()[-2].replace('"', '').strip()
+#             priv = b58check_to_hex(wif)
+#             pub = privtopub(priv)
 
-            sig = os.popen('electrum -w %s signmessage %s %s' % (self.wallet, addy, msg)).readlines()[-1].strip()
-            self.assertTrue(
-                ecdsa_verify(msg, sig, pub),
-                "Verification error. Details:\nmsg: %s\nsig: %s\npriv: %s\naddy: %s\npub: %s" % (
-                    msg, sig, priv, addy, pub
-                )
-            )
+#             sig = os.popen('electrum -w %s signmessage %s %s' % (self.wallet, addy, msg)).readlines()[-1].strip()
+#             self.assertTrue(
+#                 ecdsa_verify(msg, sig, pub),
+#                 "Verification error. Details:\nmsg: %s\nsig: %s\npriv: %s\naddy: %s\npub: %s" % (
+#                     msg, sig, priv, addy, pub
+#                 )
+#             )
 
-            rec = ecdsa_recover(msg, sig)
-            self.assertEqual(
-                pub,
-                rec,
-                "Recovery error. Details:\nmsg: %s\nsig: %s\npriv: %s\naddy: %s\noriginal pub: %s, %s\nrecovered pub: %s" % (
-                    msg, sig, priv, addy, pub, decode_pubkey(pub, 'hex')[1], rec
-                )
-            )
+#             rec = ecdsa_recover(msg, sig)
+#             self.assertEqual(
+#                 pub,
+#                 rec,
+#                 "Recovery error. Details:\nmsg: %s\nsig: %s\npriv: %s\naddy: %s\noriginal pub: %s, %s\nrecovered pub: %s" % (
+#                     msg, sig, priv, addy, pub, decode_pubkey(pub, 'hex')[1], rec
+#                 )
+#             )
 
-            mysig = ecdsa_sign(msg, priv)
-            self.assertEqual(
-                os.popen('electrum -w %s verifymessage %s %s %s' % (self.wallet, addy, mysig, msg)).read().strip(),
-                "true",
-                "Electrum verify message does not match"
-            )
+#             mysig = ecdsa_sign(msg, priv)
+#             self.assertEqual(
+#                 os.popen('electrum -w %s verifymessage %s %s %s' % (self.wallet, addy, mysig, msg)).read().strip(),
+#                 "true",
+#                 "Electrum verify message does not match"
+#             )
 
 
 class TestTransactionSignVerify(unittest.TestCase):
@@ -228,13 +228,13 @@ class TestTransaction(unittest.TestCase):
                                      "03560cad89031c412ad8619398bd43b3d673cb5bdcdac1afc46449382c6a8e0b2b"],
                                      2)
 
-        self.assertEqual(p2sh_scriptaddr(script), "33byJBaS5N45RHFcatTSt9ZjiGb6nK4iV3")
+        self.assertEqual(p2sh_scriptaddr(script), "7UKc8NrbtM9iR3nZrW7xDXZPdpRUWmUoBx")
 
-        self.assertEqual(p2sh_scriptaddr(script, 0x05), "33byJBaS5N45RHFcatTSt9ZjiGb6nK4iV3")
-        self.assertEqual(p2sh_scriptaddr(script, 5), "33byJBaS5N45RHFcatTSt9ZjiGb6nK4iV3")
+        self.assertEqual(p2sh_scriptaddr(script, 0x10), "7UKc8NrbtM9iR3nZrW7xDXZPdpRUWmUoBx")
+        self.assertEqual(p2sh_scriptaddr(script, 16), "7UKc8NrbtM9iR3nZrW7xDXZPdpRUWmUoBx")
 
-        self.assertEqual(p2sh_scriptaddr(script, 0xc4), "2MuABMvWTgpZRd4tAG25KW6YzvcoGVZDZYP")
-        self.assertEqual(p2sh_scriptaddr(script, 196), "2MuABMvWTgpZRd4tAG25KW6YzvcoGVZDZYP")
+        self.assertEqual(p2sh_scriptaddr(script, 0x13), "8gLR5hkU1tYLsMCpvm7ufuNkXLCJeLHQCc")
+        self.assertEqual(p2sh_scriptaddr(script, 19), "8gLR5hkU1tYLsMCpvm7ufuNkXLCJeLHQCc")
 
 
 class TestDeterministicGenerate(unittest.TestCase):
@@ -386,27 +386,27 @@ class TestStartingAddressAndScriptGenerationConsistency(unittest.TestCase):
         for i in range(5):
             a = privtoaddr(random_key())
             self.assertEqual(a, script_to_address(address_to_script(a)))
-            self.assertEqual(a, script_to_address(address_to_script(a), 0))
-            self.assertEqual(a, script_to_address(address_to_script(a), 0x00))
+            self.assertEqual(a, script_to_address(address_to_script(a), 76))
+            self.assertEqual(a, script_to_address(address_to_script(a), 0x4c))
 
-            b = privtoaddr(random_key(), 5)
+            b = privtoaddr(random_key(), 16)
             self.assertEqual(b, script_to_address(address_to_script(b)))
-            self.assertEqual(b, script_to_address(address_to_script(b), 0))
-            self.assertEqual(b, script_to_address(address_to_script(b), 0x00))
-            self.assertEqual(b, script_to_address(address_to_script(b), 5))
-            self.assertEqual(b, script_to_address(address_to_script(b), 0x05))
+            self.assertEqual(b, script_to_address(address_to_script(b), 76))
+            self.assertEqual(b, script_to_address(address_to_script(b), 0x4c))
+            self.assertEqual(b, script_to_address(address_to_script(b), 16))
+            self.assertEqual(b, script_to_address(address_to_script(b), 0x0f))
 
 
         for i in range(5):
-            a = privtoaddr(random_key(), 0x6f)
-            self.assertEqual(a, script_to_address(address_to_script(a), 111))
-            self.assertEqual(a, script_to_address(address_to_script(a), 0x6f))
+            a = privtoaddr(random_key(), 0x8b)
+            self.assertEqual(a, script_to_address(address_to_script(a), 139))
+            self.assertEqual(a, script_to_address(address_to_script(a), 0x8b))
 
-            b = privtoaddr(random_key(), 0xc4)
-            self.assertEqual(b, script_to_address(address_to_script(b), 111))
-            self.assertEqual(b, script_to_address(address_to_script(b), 0x6f))
-            self.assertEqual(b, script_to_address(address_to_script(b), 196))
-            self.assertEqual(b, script_to_address(address_to_script(b), 0xc4))
+            b = privtoaddr(random_key(), 0x13)
+            self.assertEqual(b, script_to_address(address_to_script(b), 139))
+            self.assertEqual(b, script_to_address(address_to_script(b), 0x8b))
+            self.assertEqual(b, script_to_address(address_to_script(b), 19))
+            self.assertEqual(b, script_to_address(address_to_script(b), 0x13))
 
 
 class TestRipeMD160PythonBackup(unittest.TestCase):
@@ -453,9 +453,9 @@ class TestScriptVsAddressOutputs(unittest.TestCase):
         print('Testing script vs address outputs')
 
     def test_all(self):
-        addr0 = '1Lqgj1ThNfwLgHMp5qJUerYsuUEm8vHmVG'
+        addr0 = 'XvXXZG7bLP9vqDxPwichWPEfjopTCT1oJH'
         script0 = '76a914d99f84267d1f90f3e870a5e9d2399918140be61d88ac'
-        addr1 = '31oSGBBNrpCiENH3XMZpiP6GTC4tad4bMy'
+        addr1 = '7SX56NTYfoJME8oznyEL3m5vNjuGNrcoJp'
         script1 = 'a9140136d001619faba572df2ef3d193a57ad29122d987'
 
         inputs = [{
