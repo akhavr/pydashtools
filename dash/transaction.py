@@ -213,7 +213,7 @@ def mk_scripthash_script(addr):
 
 
 def address_to_script(addr):
-    if addr[0] == '3' or addr[0] == '2':
+    if addr[0] in ['7','8','9']:
         return mk_scripthash_script(addr)
     else:
         return mk_pubkey_script(addr)
@@ -221,22 +221,22 @@ def address_to_script(addr):
 # Output script to address representation
 
 
-def script_to_address(script, vbyte=0):
+def script_to_address(script, vbyte=76):
     if re.match('^[0-9a-fA-F]*$', script):
         script = binascii.unhexlify(script)
     if script[:3] == b'\x76\xa9\x14' and script[-2:] == b'\x88\xac' and len(script) == 25:
         return bin_to_b58check(script[3:-2], vbyte)  # pubkey hash addresses
     else:
-        if vbyte in [111, 196]:
+        if vbyte in [139, 19]:
             # Testnet
-            scripthash_byte = 196
+            scripthash_byte = 19
         else:
-            scripthash_byte = 5
+            scripthash_byte = 16
         # BIP0016 scripthash addresses
         return bin_to_b58check(script[2:-1], scripthash_byte)
 
 
-def p2sh_scriptaddr(script, magicbyte=5):
+def p2sh_scriptaddr(script, magicbyte=16):
     if re.match('^[0-9a-fA-F]*$', script):
         script = binascii.unhexlify(script)
     return hex_to_b58check(hash160(script), magicbyte)
